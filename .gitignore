@@ -1,0 +1,47 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+
+venv/
+env/
+.venv/
+env.bak/
+venv.bak/
+
+# IDE and editor folders
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pytest cache
+.cache/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Local configuration files
+*.env
+*.flaskenv
+
+# Docker files
+docker-compose.override.yml
+*.swp
+
+# Logs
+*.log
+
+# Test coverage
+.coverage
+.coverage.*
+*.hypothesis/
+/data/
+/.webui_secret_key
