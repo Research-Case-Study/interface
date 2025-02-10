@@ -100,13 +100,15 @@ Offer support and guidance to help users understand the importance of their word
 def get_bert_classification(request, user_input):
 
     results = request.app.state.pipe(user_input)
-
+    # results = sorted(results[0], key=lambda x: x['score'], reverse=True)
+    # results = results[0], key=lambda x: x['score'], reverse=True
     # Extract the most likely class (highest probability)
-    most_likely_class = results[0][0]['label']
-    most_likely_class_score = results[0][0]['score']
+    results= results[0]
+    most_likely_class = results[0]['label']
+    most_likely_class_score = results[0]['score']
 
     # Create a dictionary to store all classes and their corresponding probabilities
-    class_probabilities = {result['label']: result['score'] for result in results[0]}
+    class_probabilities = {result['label']: result['score'] for result in results}
 
     all_classes_n_score = "\n".join([f"Class: {label}, Probability: {score}" for label, score in class_probabilities.items()])
 
@@ -1094,7 +1096,7 @@ async def generate_chat_completion(
 
 
 
-    print(payload)
+    # print(payload)
     #classified_payload = payload
 
 
@@ -1118,28 +1120,45 @@ async def generate_chat_completion(
     # print(classified_response)
 
 
-    # RAG + calssification
-    rag_results = fetch_explainations_rag(request, last_user_message, top_k=2)
-    rag_results_str = json.dumps(rag_results, indent=4)
+
 
 
     ##################### classification_response = llm(payload['model'], system_prompt_classification, last_user_message, rag_results_str)['message']['content']
 
     # RAG ABOVE . now to final explaination
 
+    # classification
+    try:
+        most_likely_class, all_classes_n_score = get_bert_classification(request, last_user_message)
+        # system_prompt_exp = ChatMessage(role="system", content=system_prompt_explaination)
+        classifier_text = f"""Classified label {most_likely_class}
+        Please follow the classified label
+        {all_classes_n_score}
+        """
+        classification_response_exp = ChatMessage(role="system", content=classifier_text)
 
-    most_likely_class, all_classes_n_score = get_bert_classification(request, last_user_message)
+        # payload['messages'].append(system_prompt_exp.dict())
+        payload['messages'].append(classification_response_exp.dict())
+    except Exception as e:
+        print(e)
+        all_classes_n_score = "Kindly classify userinput"
 
 
 
+    # RAG
+    try:
+        rag_results = fetch_explainations_rag(request, last_user_message, top_k=2)
+        rag_results_str = json.dumps(rag_results, indent=4)
+        rag_results_str += "RAG similar results, DO NOT MENTION THESE EXAMPLES IN YOUR REPLY if irrelevent :\n"
+        rag_response_exp = ChatMessage(role="system", content=rag_results_str)
+        payload['messages'].append(rag_response_exp.dict())
+    except Exception as e:
+        print(e)
+        rag_results_str = "No RAG context"
 
-    # system_prompt_exp = ChatMessage(role="system", content=system_prompt_explaination)
-    classification_response_exp = ChatMessage(role="system", content=all_classes_n_score)
 
-    # payload['messages'].append(system_prompt_exp.dict())
-    payload['messages'].append(classification_response_exp.dict())
 
-    print(payload)
+    # print(payload)
 
 
 
@@ -1289,7 +1308,7 @@ async def generate_chat_completion(
     #             print(f"Error decoding chunk: {e}")
     #             continue
 
-
+    # print(payload['messages'])
 
     response = await send_post_request(
         url=f"{url}/api/chat",
