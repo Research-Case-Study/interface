@@ -9,7 +9,7 @@ This project is forked from [Open WebUI](https://github.com/open-webui/open-webu
 ### 1. Clone the Repository
 First, clone this repository to your local machine:
 ```bash
-git clone https://github.com/your-repo/interface.git
+git clone https://github.com/Research-Case-Study/interface.git
 cd interface
 ```
 
