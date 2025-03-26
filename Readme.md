@@ -1,5 +1,7 @@
 # Hunter: Hate Speech Detection Interface
-
+<p align="center">
+  <img src="/interface/frontend/favicon.png" alt="Hunter Logo" width="150">
+</p>
 Hunter is an AI-powered interface designed to detect hate speech. This repository contains the full backend and frontend setup to run the detection system.
 
 This project is forked from [Open WebUI](https://github.com/open-webui/open-webui).
